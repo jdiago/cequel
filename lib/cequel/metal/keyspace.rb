@@ -122,8 +122,10 @@ module Cequel
       #   certificate
       # @option configuration [String] :private_key path to ssl client private
       #   key
-      # @option configuartion [String] :passphrase the passphrase for client
+      # @option configuration [String] :passphrase the passphrase for client
       #   private key
+      # @option configuration [String] :auth_provider only really supports
+      #   'instaclustr' right now
       # @return [void]
       #
       def configure(configuration = {})
@@ -372,7 +374,17 @@ module Cequel
       end
 
       def extract_credentials(configuration)
-        configuration.slice(:username, :password).presence
+        credentials = configuration.slice(:username, :password).presence
+
+        case configuration[:auth_provider]
+        when 'instaclustr'
+          {
+            auth_provider: Cequel::Metal::InstaclustrAuthenticator.new(*credentials.values),
+            datacenter: configuration[:datacenter]
+          }
+        else
+          credentials
+        end
       end
 
       def extract_max_retries(configuration)
