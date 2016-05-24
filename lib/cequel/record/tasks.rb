@@ -79,11 +79,9 @@ namespace :cequel do
       require_dependency(file)
 
       new_constants = watch_stack.new_constants
-      if new_constants.empty?
-        new_constants << model_file_name.sub(/\.rb$/, "").classify
-      end
+      new_constants << model_file_name.sub(/\.rb$/, "").classify
 
-      new_constants.each do |class_name|
+      new_constants.uniq.each do |class_name|
         # rubocop:disable HandleExceptions
         begin
           clazz = class_name.constantize
